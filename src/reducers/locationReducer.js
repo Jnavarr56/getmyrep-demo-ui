@@ -17,14 +17,6 @@ export const reducer = (state, action) => {
       key = "coords";
       reset = true;
       break;
-    case "RESET_ADDRESS_MATCHES":
-      key = "addressMatches";
-      reset = true;
-      break;
-    case "RESET_ADDRESS":
-      key = "selectedAddressIndex";
-      reset = true;
-      break;
     case "SET_ADDRESS_AND_MATCHES":
       return { ...state, addressMatches, selectedAddressIndex };
     default:

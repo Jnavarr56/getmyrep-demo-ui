@@ -88,17 +88,17 @@ const AddressMatches = () => {
           <CircularProgress />
         ) : (
           <List>
-            {matches.map((address, i) => {
+            {matches.map((addressData, i) => {
               const isSelected = i === selectedIndex;
               const handleClick = () => setSelectedIndex(isSelected ? null : i);
               return (
                 <ListItem
                   button
-                  key={address}
+                  key={addressData.address}
                   selected={isSelected}
                   onClick={handleClick}
                 >
-                  <ListItemText primary={address} />
+                  <ListItemText primary={addressData.address} />
                 </ListItem>
               );
             })}

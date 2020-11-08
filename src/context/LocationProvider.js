@@ -9,8 +9,8 @@ const renderRoutes = routes.reduce((sorted, route, i) => {
   const routeEl = redirect ? (
     <Redirect key={key} to={to} />
   ) : (
-    <Route key={key} path={path}>
-      <route.layout path={path}>
+    <Route key={key} path={path} exact>
+      <route.layout>
         <route.view />
       </route.layout>
     </Route>
@@ -20,8 +20,6 @@ const renderRoutes = routes.reduce((sorted, route, i) => {
   sorted[routeType].push(routeEl);
   return sorted;
 }, {});
-
-console.log(renderRoutes);
 
 const LocationContext = createContext();
 
@@ -39,14 +37,12 @@ const LocationContextProvider = () => {
     coords,
   } = locationContextValue.locationState;
 
-  const isUserLocated = Boolean(
+  const isUserLocated =
     addressMatches.length > 0 &&
-      selectedAddressIndex !== null &&
-      coords.lat &&
-      coords.lng
-  );
+    selectedAddressIndex !== null &&
+    coords.lat !== null &&
+    coords.lng !== null;
 
-  console.log(isUserLocated);
   return (
     <BrowserRouter>
       <Switch>

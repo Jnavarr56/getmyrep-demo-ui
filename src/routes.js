@@ -1,14 +1,14 @@
-import MainLayout from "./layouts/Main";
-import LandingLayout from "./layouts/Landing";
+import LocatedLayout from "./layouts/Located";
+import UnlocatedLayout from "./layouts/Unlocated";
 
-import LandingView from "./views/Landing";
+import Landing from "./views/Landing";
 import Geolocation from "./views/Geolocation";
 import AddressMatches from "./views/AddressMatches";
 
 const routes = [
   {
     path: "/home",
-    layout: MainLayout,
+    layout: LocatedLayout,
     view: () => <p>hi</p>,
     locationRequired: true,
   },
@@ -18,21 +18,21 @@ const routes = [
     locationRequired: true,
   },
   {
+    path: "/",
+    layout: UnlocatedLayout,
+    view: Landing,
+    locationRequired: false,
+  },
+  {
     path: "/geolocation",
-    layout: LandingLayout,
+    layout: UnlocatedLayout,
     view: Geolocation,
     locationRequired: false,
   },
   {
     path: "/address-matches",
-    layout: LandingLayout,
+    layout: UnlocatedLayout,
     view: AddressMatches,
-    locationRequired: false,
-  },
-  {
-    path: "/",
-    layout: LandingLayout,
-    view: LandingView,
     locationRequired: false,
   },
   {
