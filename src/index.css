@@ -8,3 +8,8 @@ body,
   width: 100vw;
   overflow: hidden;
 }
+
+/* #root {
+  background: "linear-gradient(to right, #56ccf2, #2f80ed)";
+} 
+*/

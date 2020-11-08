@@ -1,4 +1,7 @@
 import MainLayout from "./layouts/Main";
+import LandingLayout from "./layouts/Landing";
+
+import LandingView from "./views/Landing";
 import Geolocation from "./views/Geolocation";
 import AddressMatches from "./views/AddressMatches";
 
@@ -16,19 +19,25 @@ const routes = [
   },
   {
     path: "/geolocation",
-    layout: ({ children }) => children,
+    layout: LandingLayout,
     view: Geolocation,
     locationRequired: false,
   },
   {
     path: "/address-matches",
-    layout: ({ children }) => children,
+    layout: LandingLayout,
     view: AddressMatches,
     locationRequired: false,
   },
   {
+    path: "/",
+    layout: LandingLayout,
+    view: LandingView,
+    locationRequired: false,
+  },
+  {
     redirect: true,
-    to: "/geolocation",
+    to: "/",
     locationRequired: false,
   },
 ];
