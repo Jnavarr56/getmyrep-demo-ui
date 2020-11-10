@@ -1,5 +1,5 @@
+// HTML5 Geolocation API Settings
 export const GEOLOCATION_OPTIONS = { enableHighAccuracy: true };
-
 export const GEOLOCATION_ERROR_TEXT_DENIED =
   "You've blocked geolocation permissions. You must allow them for me to guess your location.";
 export const GEOLOCATION_ERROR_TEXT_UNSUPPORTED =

@@ -8,18 +8,16 @@ import {
   LinearProgress as Progress,
   Typography,
   makeStyles,
-  Dialog,
-  Divider,
-  DialogTitle,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
 } from "@material-ui/core";
+import { isCoordsLoaded } from "helpers/coords";
+import { ErrorDialog } from "./components";
+import { geolocateAsync } from "./lib";
 
-import { isCoordsLoaded } from "../../helpers/coords";
-import * as geolib from "./lib";
-
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
+  root: {
+    height: "100%",
+    paddingTop: "35%",
+  },
   progress: {
     display: "block",
     margin: "0 auto",
@@ -27,49 +25,42 @@ const useStyles = makeStyles({
   typography: {
     marginBottom: 32,
   },
-});
+}));
 
-const Geolocation = () => {
+const GuessCoordinates = () => {
   const { locationState, locationDispatch } = useContext(LocationContext);
 
   const classes = useStyles();
-
   const history = useHistory();
 
-  const [error, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [error, setError] = useState("");
   const [prompted, setPrompted] = useState(false);
   const [fetching, setFetching] = useState(false);
 
-  const handleConfirmPrompt = useCallback(() => setPrompted(true), []);
   //eslint-disable-next-line
   const handleGoBack = useCallback(() => history.push("/"), []);
+  const handleConfirmPrompt = useCallback(() => setPrompted(true), []);
   const handleConfirmError = useCallback(() => {
-    setError(false);
+    setError("");
     setPrompted(false);
     setFetching(false);
   }, []);
-  const handleResetErrorMsg = useCallback(() => setErrorMessage(""), []);
 
   useEffect(() => {
     let mounted = true;
 
     if (prompted) {
       setFetching(true);
-      geolib
-        .geolocateAsync()
-        .then((coords) => {
-          console.log(coords);
-          if (!mounted) return;
 
+      geolocateAsync()
+        .then((coords) => {
+          if (!mounted) return;
           setFetching(false);
           locationDispatch({ type: "SET_COORDS", coords });
         })
-        .catch((msg) => {
+        .catch((errorMsg) => {
           if (!mounted) return;
-
-          setError(true);
-          setErrorMessage(msg);
+          setError(errorMsg);
           setFetching(false);
         });
     }
@@ -78,8 +69,9 @@ const Geolocation = () => {
     //eslint-disable-next-line
   }, [prompted]);
 
-  // If coords already determined navigate forward.
-  if (isCoordsLoaded(locationState)) return <Redirect to="/address-matches" />;
+  if (isCoordsLoaded(locationState)) {
+    return <Redirect to="/address-matches" />;
+  }
 
   if (fetching) {
     return <Progress variant="query" className={classes.progress} />;
@@ -87,7 +79,7 @@ const Geolocation = () => {
 
   return (
     <Fade in>
-      <div>
+      <div className={classes.root}>
         <Typography
           variant="h3"
           gutterbottom
@@ -120,29 +112,10 @@ const Geolocation = () => {
             </Button>
           </Grid>
         </Grid>
-        <Dialog
-          open={error}
-          onClose={handleConfirmError}
-          onExited={handleResetErrorMsg}
-        >
-          <DialogTitle>Error!</DialogTitle>
-          <Divider />
-          <DialogContent>
-            <DialogContentText>{errorMessage}</DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              variant={"outlined"}
-              onClick={handleConfirmError}
-              color="primary"
-            >
-              Ok
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <ErrorDialog onConfirmError={handleConfirmError} errorMessage={error} />
       </div>
     </Fade>
   );
 };
 
-export default Geolocation;
+export default GuessCoordinates;

@@ -1,7 +1,12 @@
 import React, { createContext, useReducer, useMemo } from "react";
 import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
-import { reducer, initialState } from "../reducers/locationReducer";
-import routes from "../routes";
+import { reducer, initialState } from "reducers/locationReducer";
+import {
+  isCoordsLoaded,
+  isAddressMatchesLoaded,
+  isSelectedIndexLoaded,
+} from "helpers/coords";
+import routes from "routes";
 
 const renderRoutes = routes.reduce((sorted, route, i) => {
   const { locationRequired, redirect, to, path } = route;
@@ -31,17 +36,10 @@ const LocationContextProvider = () => {
     [locationState]
   );
 
-  const {
-    addressMatches,
-    selectedAddressIndex,
-    coords,
-  } = locationContextValue.locationState;
-
   const isUserLocated =
-    addressMatches.length > 0 &&
-    selectedAddressIndex !== null &&
-    coords.lat !== null &&
-    coords.lng !== null;
+    isCoordsLoaded(locationContextValue.locationState) &&
+    isAddressMatchesLoaded(locationContextValue.locationState) &&
+    isSelectedIndexLoaded(locationContextValue.locationState);
 
   return (
     <BrowserRouter>

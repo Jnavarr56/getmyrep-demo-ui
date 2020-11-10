@@ -1,9 +1,9 @@
-import LocatedLayout from "./layouts/Located";
-import UnlocatedLayout from "./layouts/Unlocated";
+import LocatedLayout from "layouts/Located";
+import UnlocatedLayout from "layouts/Unlocated";
 
-import Landing from "./views/Landing";
-import Geolocation from "./views/Geolocation";
-import AddressMatches from "./views/AddressMatches";
+import Landing from "views/Landing";
+import GuessCoordinates from "views/GuessCoordinates";
+import AddressMatches from "views/AddressMatches";
 
 const routes = [
   {
@@ -24,9 +24,9 @@ const routes = [
     locationRequired: false,
   },
   {
-    path: "/geolocation",
+    path: "/guess-coordinates",
     layout: UnlocatedLayout,
-    view: Geolocation,
+    view: GuessCoordinates,
     locationRequired: false,
   },
   {
