@@ -79,8 +79,7 @@ const Geolocation = () => {
   }, [prompted]);
 
   // If coords already determined navigate forward.
-  if (isCoordsLoaded(locationState.coords))
-    return <Redirect to="/address-matches" />;
+  if (isCoordsLoaded(locationState)) return <Redirect to="/address-matches" />;
 
   if (fetching) {
     return <Progress variant="query" className={classes.progress} />;

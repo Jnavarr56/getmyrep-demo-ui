@@ -1,7 +1,5 @@
 import React, { useEffect, useContext, useState, useCallback } from "react";
 import { Redirect } from "react-router-dom";
-
-import { LocationContext } from "../../context/LocationProvider";
 import {
   Button,
   Divider,
@@ -9,75 +7,72 @@ import {
   CardActions,
   CardContent,
   CardHeader,
-  List,
-  ListItem,
-  ListItemText,
   CircularProgress,
+  Grid,
 } from "@material-ui/core";
-import axios from "axios";
+import * as addressLib from "./lib";
+import { LocationContext } from "../../context/LocationProvider";
+import { isCoordsLoaded, isAddressMatchesLoaded } from "../../helpers/coords";
 
-const ADDRESS_MATCHES_API = "http://localhost:3000/api/geocode";
+const MAP_DIMENSIONS = { height: 300, width: "100%" };
 
 const AddressMatches = () => {
   const { locationState, locationDispatch } = useContext(LocationContext);
-  const { coords, selectedAddressIndex, addressMatches } = locationState;
 
-  const [fetching, setFetching] = useState(true);
   const [error, setError] = useState(null);
-
+  const [fetching, setFetching] = useState(true);
   const [matches, setMatches] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(null);
 
   const handleGuessCoordsAgain = useCallback(
     () => locationDispatch({ type: "RESET_COORDS" }),
+    //eslint-disable-next-line
     []
   );
-  const handleSelectAddress = () =>
+  const handleFinalizeMatch = () =>
     locationDispatch({
       type: "SET_ADDRESS_AND_MATCHES",
       addressMatches: matches,
       selectedAddressIndex: selectedIndex,
     });
 
+  const handleSelectMatch = useCallback(
+    (matchIndex) => setSelectedIndex(matchIndex),
+    []
+  );
+
   useEffect(() => {
-    if (addressMatches.length > 0) {
-      setMatches(addressMatches);
-      setSelectedIndex((prev) => selectedAddressIndex || prev);
+    if (isAddressMatchesLoaded(locationState)) {
+      setMatches(locationState.addressMatches);
       setFetching(false);
       return;
     }
 
     let mounted = true;
 
-    const fetchAddressMatches = () => {
-      axios
-        .get(ADDRESS_MATCHES_API, { params: locationState.coords })
-        .then(({ data }) => {
-          if (!mounted) return;
-          setMatches(data.address_matches);
-          setFetching(false);
-        })
-        .catch((error) => {
-          console.log(error);
+    addressLib
+      .fetchAddressMatches(locationState.coords)
+      .then((newMatches) => {
+        if (!mounted) return;
 
-          if (!mounted) return;
-          setError(error);
-          setFetching(false);
-        });
-    };
+        setMatches(newMatches);
+        setFetching(false);
+      })
+      .catch((error) => {
+        if (!mounted) return;
 
-    fetchAddressMatches();
+        console.log(error);
+
+        setError(error);
+        setFetching(false);
+      });
+
+    return () => (mounted = false);
 
     // eslint-disable-next-line
   }, []);
 
-  const coordsMissing = !coords.lat && !coords.lat;
-  if (coordsMissing) return <Redirect to="/geolocation" />;
-
-  const addressAlreadySelected =
-    selectedAddressIndex !== null && addressMatches.length > 0;
-
-  if (addressAlreadySelected) return <Redirect to="/home" />;
+  if (!isCoordsLoaded(locationState)) return <Redirect to="/geolocation" />;
 
   return (
     <Card>
@@ -87,27 +82,41 @@ const AddressMatches = () => {
         {fetching ? (
           <CircularProgress />
         ) : (
-          <List>
-            {matches.map((addressData, i) => {
-              const isSelected = i === selectedIndex;
-              const handleClick = () => setSelectedIndex(isSelected ? null : i);
-              return (
-                <ListItem
-                  button
-                  key={addressData.address}
-                  selected={isSelected}
-                  onClick={handleClick}
-                >
-                  <ListItemText primary={addressData.address} />
-                </ListItem>
-              );
-            })}
-          </List>
+          <Grid container>
+            <Grid item xs={12} md={7}>
+              <addressLib.AddressMatchesList
+                matches={matches}
+                selectedIndex={selectedIndex}
+                onSelectMatch={handleSelectMatch}
+              />
+            </Grid>
+            <Grid item xs={12} md={5}>
+              <addressLib.AddressMatchesMap
+                matches={matches}
+                mapContainerStyle={MAP_DIMENSIONS}
+                defaultCenter={locationState.coords}
+                selectedIndex={selectedIndex}
+              />
+            </Grid>
+          </Grid>
         )}
       </CardContent>
       <CardActions>
-        <Button onClick={handleGuessCoordsAgain}>Guess Location Again</Button>
-        <Button onClick={handleSelectAddress}>Select</Button>
+        <Button
+          variant="contained"
+          color="primary"
+          disabled={selectedIndex === null}
+          onClick={handleFinalizeMatch}
+        >
+          Select
+        </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleGuessCoordsAgain}
+        >
+          Guess Location Again
+        </Button>
       </CardActions>
     </Card>
   );

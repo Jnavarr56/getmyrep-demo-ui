@@ -5,25 +5,16 @@ export const initialState = {
 };
 
 export const reducer = (state, action) => {
-  const { addressMatches, selectedAddressIndex } = action;
+  const { type, coords, addressMatches, selectedAddressIndex } = action;
 
-  let key, reset;
-
-  switch (action.type) {
+  switch (type) {
     case "SET_COORDS":
-      key = "coords";
-      break;
+      return { ...state, coords };
     case "RESET_COORDS":
-      key = "coords";
-      reset = true;
-      break;
+      return { ...state, coords: initialState.coords };
     case "SET_ADDRESS_AND_MATCHES":
       return { ...state, addressMatches, selectedAddressIndex };
     default:
       throw new Error("Invalid reducer action type");
   }
-
-  const toAlter = { ...initialState };
-  toAlter[key] = reset ? initialState[key] : action[key];
-  return toAlter;
 };
